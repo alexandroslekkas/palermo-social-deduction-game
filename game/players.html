@@ -1,0 +1,171 @@
+<!--
+ _____  _                           
+|  __ \| |                          
+| |__) | | __ _ _   _  ___ _ __ ___ 
+|  ___/| |/ _` | | | |/ _ \ '__/ __|
+| |    | | (_| | |_| |  __/ |  \__ \
+|_|    |_|\__,_|\__, |\___|_|  |___/
+                 __/ |              
+                |___/    
+                
+Page which handles the player input and
+role assignment.
+-->
+
+<!-- Head -->
+
+<head>
+
+    <meta charset="utf-8">
+    <title>Mafia</title>
+    <link rel="stylesheet" href="../style.css">
+
+</head>
+
+<!-- Body -->
+
+<body>
+
+    <h1>Mafia</h1> <!-- Title -->
+
+    <!-- Progress-->
+    <section>
+
+        <progress id="progressBar" max="7"></progress><br>
+
+    </section>
+
+    <!-- Input -->
+    <section>
+
+        <input type="text" id="playerName" placeholder="Enter your name"><button id="submit">Submit</button>
+
+    </section>
+
+    <!-- Role -->
+    <section>
+
+        <button id="revealRole">Check role</button>
+        <p id="role"><span id="hiddenRole"></span></p><br>
+        <button id="beginGame">Start game</button>
+
+    </section>
+
+</body>
+
+<!-- Script -->
+<script>
+
+    // ===============
+    // Variables
+    // ===============
+
+    var playerName = "";
+    var role = "";
+    var counter = 0;
+    var revealRoleEnabled = false; // Boolean which determines whether the role should be revealed or not.
+    var lastPersonToRevealRole = false; // Boolean which determines if the last person has held to reveal their role.
+    var roles = ["Secret Murderer", "Obvious Murderer", "Policeman", "Doctor", "Pimp", "Citizen", "Citizen"];
+
+    // ===============
+    // Functions
+    // ===============
+
+    // Function which handles the player input and role assignment.
+    function onSubmit() {
+        
+        // Get and store player name
+        isValidJoin = joinGame(document.getElementById("playerName").value); // Get player name from input field
+        
+        if (isValidJoin == true) {
+            
+            role = getRandomRole(); // Handle role assignment
+
+            // Increment counter and update progress bar
+            counter++;
+            document.getElementById("progressBar").value = counter;
+            if (counter >= 7) { // If all players have been assigned a role
+                if (lastPersonToRevealRole) { // If the last person has held to reveal their role
+                    document.getElementById("beginGame").style.display = "block";
+                }
+            }
+
+            if (counter === 7) {
+                document.getElementById("beginGame").style.display = "block";
+            } 
+
+        }
+        else {
+            console.log("[Game] Some condition not met")
+        }
+
+    }
+
+    // Function which gets player to join game
+    function joinGame(playerName) {
+
+        // If the player name is empty
+        if (playerName == "") {
+            alert("Please enter a name."); return false
+        } else {
+
+            // If player count is over 7
+            if (counter >= 7) {
+                return false
+            } else {
+                sessionStorage.setItem("playerName", playerName);
+                console.log("[Game] " + playerName + " has joined the game.");
+                return true
+            }
+
+        }
+
+    }
+
+    // Function which returns a random role.
+    function getRandomRole() {
+
+        // Check if there are still player slots left
+        if (counter <= 7) { // If there are still roles left
+
+            // Get role
+            var role = roles[Math.floor(Math.random() * roles.length)];
+            roles.splice(roles.indexOf(role), 1);
+
+            // Return role & output role
+            console.log("[Game] " + playerName + " has been assigned the role: " + role + ".");
+            return role;
+
+        } else {
+            return
+        }
+    }
+
+    // ===============
+    // DOM
+    // ===============
+
+    document.getElementById("submit").addEventListener("click", onSubmit);
+
+    document.getElementById("role").addEventListener("click", function () {
+        revealRoleEnabled = true;
+    });
+
+    document.getElementById("revealRole").addEventListener("mousedown", function () {
+        revealRoleEnabled = true;
+        document.getElementById("hiddenRole").classList.remove("hidden");
+        document.getElementById("revealRole").innerHTML = role;
+        if (counter == 7) { lastPersonToRevealRole = true; }
+    });
+
+    document.getElementById("revealRole").addEventListener("mouseup", function () {
+        revealRoleEnabled = false;
+        document.getElementById("hiddenRole").classList.add("hidden");
+        document.getElementById("revealRole").innerHTML = "Check Role";
+    });
+
+    document.getElementById("beginGame").addEventListener("click", function () {
+        window.location.href = "game.html";
+    });
+
+</script>
